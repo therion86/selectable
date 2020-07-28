@@ -1,0 +1,31 @@
+.selectable-wrapper {
+
+}
+.selectable-dropdown-chevron {
+    float: right;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.selectable-title {
+    color: #cfcfcf;
+    float: left;
+    margin-left: 5px;
+    font-size: 15px;
+    line-height: 20px;
+}
+
+.selectable-options-holder {
+    border: 1px solid #cfcfcf;
+    padding: 5px;
+}
+
+.selectable-option {
+    width: 100%;
+    text-align: left;
+    cursor: pointer
+}
+
+.selectable-option:hover {
+    background: #1b6d85;
+}
