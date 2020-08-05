@@ -29,3 +29,7 @@
 .selectable-option:hover {
     background: #1b6d85;
 }
+
+.selectable-option-selected {
+    background: #1b6d85;
+}
