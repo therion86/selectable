@@ -27,13 +27,16 @@
 }
 
 .selectable-option:hover {
-    background: #1b6d85;
+    background: #cfcfcf;
 }
 
 .selectable-option-selected {
-    background: #1b6d85;
 }
 
 .selectable {
     height: 30px !important; /* importand needs to be set to ignore browser multiple */
+}
+
+.selected-check-right {
+    float: right;
 }
