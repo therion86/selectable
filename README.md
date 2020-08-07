@@ -1,4 +1,4 @@
-# selectable
+# Selectable
 A JS selector.
 The selector appends the styling of the select-field. If you are using for e.g. bootstrap, the wrapper for the select-field looks like a form-control
 
