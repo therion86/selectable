@@ -26,7 +26,7 @@ data-multiple-options-count | Sets the counting value for select "multiple"
 
 ## Plugins
 ### Selectable external Option Loading
-#### Include Source
+#### Include Source before Selectable.js
 ```
 <script src="selectable/js/SelectableExternalOptions.js"></script>
 ```
