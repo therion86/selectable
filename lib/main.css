@@ -1,5 +1,5 @@
 .selectable-wrapper {
-
+    cursor: pointer;
 }
 .selectable-dropdown-chevron {
     float: right;
