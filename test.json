@@ -1,0 +1,22 @@
+[
+  {
+    "value" : 1,
+    "label" : "first"
+  },
+  {
+    "value" : 2,
+    "label" : "second"
+  },
+  {
+    "value" : 3,
+    "label" : "third"
+  },
+  {
+    "value" : 4,
+    "label" : "fourth"
+  },
+  {
+    "value" : 5,
+    "label" : "fifth"
+  }
+]
