@@ -1,5 +1,5 @@
 /**
- *
+ * @author Therion86
  */
 class Selectable {
 
@@ -128,6 +128,7 @@ class Selectable {
     _addOptionsHolder(wrapperDiv, selectField, selectId) {
         let optionsHolder = document.createElement('div');
         optionsHolder.classList.add('selectable-options-holder')
+        optionsHolder.style.width = wrapperDiv.style.width;
         Array.from(selectField.options).forEach(function(element) {
             let label = element.innerHTML;
             let option = document.createElement('div');

@@ -1,3 +1,8 @@
+/**
+ * This is a plugin to Selectable.js
+ * If you are using this you should include Selectable.js first, although this will not work
+ * @author Therion86
+ */
 class SelectableExternalOptions {
 
     constructor() {
@@ -6,15 +11,17 @@ class SelectableExternalOptions {
     /**
      * @param {HTMLSelectElement} selectField
      * @public
+     * @static
      */
-    loadOptions(selectField) {
+    static loadOptions(selectField) {
         if (! selectField.classList.contains('external')) {
             return true;
         }
         if (! selectField.hasAttribute('data-url')) {
             throw "No data-url was set!";
         }
-       return this._fetchData(selectField.getAttribute('data-url'), this._fillOptions, selectField);
+        let selectableExternalOptions = new this();
+        return selectableExternalOptions.fetchData(selectField.getAttribute('data-url'), this._fillOptions, selectField);
 
     }
 
@@ -22,9 +29,9 @@ class SelectableExternalOptions {
      * @param {string} url
      * @param {function} callback
      * @param {HTMLSelectElement} selectField
-     * @private
+     * @public
      */
-    _fetchData(url, callback, selectField) {
+    fetchData(url, callback, selectField) {
         return new Promise(function(resolve, reject) {
             let xmlHttp = new XMLHttpRequest();
             xmlHttp.responseType = "json";
@@ -59,6 +66,5 @@ class SelectableExternalOptions {
             selectField.add(option);
         }
     }
-}
 
-SelectableExternalOptions = new SelectableExternalOptions();
+}
