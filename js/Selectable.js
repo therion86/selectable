@@ -1,5 +1,5 @@
 /**
- *
+ * @author Therion86
  */
 class Selectable {
 
@@ -13,9 +13,11 @@ class Selectable {
             // Plugin SelectableExternalOptions needed
             if (typeof SelectableExternalOptions !== "undefined") {
                 SelectableExternalOptions.loadOptions(selectField)
-                .then(function(x) {
+                .then(function() {
                     that._initFields(selectField);
                 });
+            } else {
+                that._initFields(selectField);
             }
         }
     }
@@ -29,7 +31,7 @@ class Selectable {
         let height = selectField.clientHeight;
         let width = selectField.clientWidth;
         selectField.style.display = 'none';
-        selectField.setAttribute('data-selectable-field-id', selectId);
+        selectField.setAttribute('data-selectable-field-id', selectId.toString());
         let wrapperDiv = this._createWrapper(selectField, height, width, selectId);
         this._appendChevron(wrapperDiv, height, selectId);
         this._appendTitle(wrapperDiv, selectField, height);
@@ -64,7 +66,7 @@ class Selectable {
         chevron.classList.add('fas','fa-chevron-down', 'selectable-dropdown-chevron');
         chevron.style.paddingBottom = (selectHeight / 2 - 8) + 'px';
         chevron.style.paddingTop = (selectHeight / 2 - 8) + 'px';
-        chevron.setAttribute('data-id', selectId);
+        chevron.setAttribute('data-id', selectId.toString());
         wrapperDiv.appendChild(chevron);
         wrapperDiv.addEventListener('click', function(event) {
             let targetElement = event.target;
@@ -107,7 +109,7 @@ class Selectable {
         if (! selectField.style.border) {
             wrapperDiv.style.border = '1px solid #ccc';
         }
-        wrapperDiv.setAttribute('data-select-id', selectId)
+        wrapperDiv.setAttribute('data-select-id', selectId.toString())
         let selectClass = Array.from(selectField.classList);
         selectClass.forEach(function(element) {
             if (element === 'selectable') {
@@ -128,6 +130,7 @@ class Selectable {
     _addOptionsHolder(wrapperDiv, selectField, selectId) {
         let optionsHolder = document.createElement('div');
         optionsHolder.classList.add('selectable-options-holder')
+        optionsHolder.style.width = wrapperDiv.style.width;
         Array.from(selectField.options).forEach(function(element) {
             let label = element.innerHTML;
             let option = document.createElement('div');
@@ -138,7 +141,10 @@ class Selectable {
             optionsHolder.appendChild(option);
         });
         optionsHolder.style.display = 'none';
-        optionsHolder.setAttribute('data-id', selectId);
+        optionsHolder.setAttribute('data-id', selectId.toString());
+        if (typeof SelectableSearch !== 'undefined') {
+            SelectableSearch.addSearchField(wrapperDiv, optionsHolder);
+        }
         wrapperDiv.parentNode.appendChild(optionsHolder);
         wrapperDiv.after(optionsHolder)
     }
@@ -201,7 +207,7 @@ class Selectable {
     }
 
     /**
-     * @param {HTMLSelectElement} selectField
+     * @param {Element} selectField
      * @param {HTMLDivElement} wrapperDiv
      * @param {string} label
      * @private

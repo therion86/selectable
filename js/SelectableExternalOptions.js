@@ -1,39 +1,51 @@
+/**
+ * This is a plugin to Selectable.js
+ * If you are using this you should include Selectable.js first, although this will not work
+ * @author Therion86
+ */
 class SelectableExternalOptions {
 
-    constructor() {
+    /**
+     * @param {string} url
+     * @param {function} callback
+     * @param {HTMLSelectElement} selectField
+     */
+    constructor(url, callback, selectField) {
+        this._url = url;
+        this._callback = callback;
+        this._selectField = selectField;
     }
 
     /**
      * @param {HTMLSelectElement} selectField
      * @public
+     * @static
      */
-    loadOptions(selectField) {
+    static loadOptions(selectField) {
         if (! selectField.classList.contains('external')) {
             return true;
         }
         if (! selectField.hasAttribute('data-url')) {
             throw "No data-url was set!";
         }
-       return this._fetchData(selectField.getAttribute('data-url'), this._fillOptions, selectField);
-
+        let selectableExternalOptions = new this(selectField.getAttribute('data-url'), this.fillOptions, selectField);
+        return selectableExternalOptions.fetchData();
     }
 
     /**
-     * @param {string} url
-     * @param {function} callback
-     * @param {HTMLSelectElement} selectField
-     * @private
+     * @public
      */
-    _fetchData(url, callback, selectField) {
-        return new Promise(function(resolve, reject) {
+    fetchData() {
+        let that = this;
+        return new Promise(function(resolve) {
             let xmlHttp = new XMLHttpRequest();
             xmlHttp.responseType = "json";
             xmlHttp.onreadystatechange = function() {
                 if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
-                    resolve(callback(xmlHttp.response, selectField));
+                    resolve(that._callback(xmlHttp.response, that._selectField));
                 }
             }
-            xmlHttp.open("GET", url, true);
+            xmlHttp.open("GET", that._url, true);
             xmlHttp.send(null);
         });
     }
@@ -43,7 +55,7 @@ class SelectableExternalOptions {
      * @param {HTMLSelectElement} selectField
      * @private
      */
-    _fillOptions(response, selectField) {
+    static fillOptions(response, selectField) {
         selectField.innerHTML = '';
         for (let key in response) {
             if (! response.hasOwnProperty(key)) {
@@ -59,6 +71,5 @@ class SelectableExternalOptions {
             selectField.add(option);
         }
     }
-}
 
-SelectableExternalOptions = new SelectableExternalOptions();
+}
