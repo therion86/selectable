@@ -37,3 +37,8 @@ data-multiple-options-count | Sets the counting value for select "multiple"
 
 #### Response of Url
 The Response fo the requested Url must a JSON-Array with objects having a "value" and "label" attribute. They will be matched to the options
+### Searchbar for options
+#### Include Source before Selectable.js
+```
+<script src="selectable/js/SelectableSearch.js"></script>
+```
