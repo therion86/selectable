@@ -5,7 +5,15 @@
  */
 class SelectableExternalOptions {
 
-    constructor() {
+    /**
+     * @param {string} url
+     * @param {function} callback
+     * @param {HTMLSelectElement} selectField
+     */
+    constructor(url, callback, selectField) {
+        this._url = url;
+        this._callback = callback;
+        this._selectField = selectField;
     }
 
     /**
@@ -20,27 +28,24 @@ class SelectableExternalOptions {
         if (! selectField.hasAttribute('data-url')) {
             throw "No data-url was set!";
         }
-        let selectableExternalOptions = new this();
-        return selectableExternalOptions.fetchData(selectField.getAttribute('data-url'), this._fillOptions, selectField);
-
+        let selectableExternalOptions = new this(selectField.getAttribute('data-url'), this.fillOptions, selectField);
+        return selectableExternalOptions.fetchData();
     }
 
     /**
-     * @param {string} url
-     * @param {function} callback
-     * @param {HTMLSelectElement} selectField
      * @public
      */
-    fetchData(url, callback, selectField) {
-        return new Promise(function(resolve, reject) {
+    fetchData() {
+        let that = this;
+        return new Promise(function(resolve) {
             let xmlHttp = new XMLHttpRequest();
             xmlHttp.responseType = "json";
             xmlHttp.onreadystatechange = function() {
                 if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
-                    resolve(callback(xmlHttp.response, selectField));
+                    resolve(that._callback(xmlHttp.response, that._selectField));
                 }
             }
-            xmlHttp.open("GET", url, true);
+            xmlHttp.open("GET", that._url, true);
             xmlHttp.send(null);
         });
     }
@@ -50,7 +55,7 @@ class SelectableExternalOptions {
      * @param {HTMLSelectElement} selectField
      * @private
      */
-    _fillOptions(response, selectField) {
+    static fillOptions(response, selectField) {
         selectField.innerHTML = '';
         for (let key in response) {
             if (! response.hasOwnProperty(key)) {

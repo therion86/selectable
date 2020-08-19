@@ -34,7 +34,7 @@
 }
 
 .selectable {
-    height: 30px !important; /* importand needs to be set to ignore browser multiple */
+    height: 30px !important; /* important needs to be set to ignore browser multiple */
     min-width: 150px;
 }
 
