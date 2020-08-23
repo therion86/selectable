@@ -235,10 +235,13 @@ class Selectable {
         if (!selectField.hasAttribute('multiple')) {
             optionsLabel = label;
         }
+        let selectableTitle = wrapperDiv.querySelector('.selectable-title');
         if (selectedOptionsLength > 0) {
-            wrapperDiv.querySelector('.selectable-title').innerHTML = optionsLabel;
+            selectableTitle.innerHTML = optionsLabel;
+            let selectableTitleWidth = wrapperDiv.clientWidth - 21 - 5;
+            selectableTitle.style.width = selectableTitleWidth + 'px';
         } else {
-            wrapperDiv.querySelector('.selectable-title').innerHTML = selectField.getAttribute('title');
+            selectableTitle.innerHTML = selectField.getAttribute('title');
         }
     }
 

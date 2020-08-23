@@ -1,8 +1,11 @@
 .selectable-wrapper {
     cursor: pointer;
+    position: relative;
 }
 .selectable-dropdown-chevron {
-    float: right;
+    position: absolute;
+    right: 0;
+    top: 0;
     margin-right: 5px;
     cursor: pointer;
 }
@@ -13,6 +16,8 @@
     margin-left: 5px;
     font-size: 15px;
     line-height: 20px;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .selectable-options-holder {
