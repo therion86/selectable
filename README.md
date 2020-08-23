@@ -7,6 +7,9 @@ The selector appends the styling of the select-field. If you are using for e.g. 
 Fontawesome 5
 ```
 
+## Examples
+http://selectable.nightshift-alternativ.de
+
 ## Usage
 ### Include the source
 ```
