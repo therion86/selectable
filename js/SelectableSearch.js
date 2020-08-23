@@ -60,4 +60,34 @@ class SelectableSearch {
         this._optionsHolder.prepend(searchBar);
     }
 
+    /**
+     * @param {int} selectId
+     * @returns {boolean}
+     * @public
+     * @static
+     */
+    static liveSearch(selectId) {
+        if (typeof SelectableExternalOptions === 'undefined') {
+            return true;
+        }
+        let optionsHolder = document.querySelector('.selectable-options-holder[data-id="' + selectId + '"]');
+        let searchBar = optionsHolder.querySelector('.selectable-search-bar');
+        let selectField = document.querySelector('select[data-selectable-field-id="' + selectId + '"]');
+        searchBar.addEventListener('keyup', function() {
+            if (this.value.length < 3) {
+                return true;
+            }
+            optionsHolder.querySelectorAll('.selectable-option').forEach(function(element) {
+                element.remove();
+            });
+            SelectableExternalOptions.loadOptions(selectField, this.value)
+                .then(function() {
+                Selectable.addOptions(selectField, optionsHolder);
+            });
+        });
+
+
+
+    }
+
 }

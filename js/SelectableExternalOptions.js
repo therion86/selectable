@@ -18,10 +18,12 @@ class SelectableExternalOptions {
 
     /**
      * @param {HTMLSelectElement} selectField
+     * @param {string|null} searchValue
+     * @returns {Promise}
      * @public
      * @static
      */
-    static loadOptions(selectField) {
+    static loadOptions(selectField, searchValue) {
         if (! selectField.classList.contains('external')) {
             return true;
         }
@@ -29,25 +31,42 @@ class SelectableExternalOptions {
             throw "No data-url was set!";
         }
         let selectableExternalOptions = new this(selectField.getAttribute('data-url'), this.fillOptions, selectField);
-        return selectableExternalOptions.fetchData();
+        return selectableExternalOptions.fetchData(searchValue);
     }
 
     /**
+     * @param {string|null} searchValue
+     * @returns {Promise}
      * @public
      */
-    fetchData() {
+    fetchData(searchValue) {
         let that = this;
-        return new Promise(function(resolve) {
-            let xmlHttp = new XMLHttpRequest();
-            xmlHttp.responseType = "json";
-            xmlHttp.onreadystatechange = function() {
-                if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
-                    resolve(that._callback(xmlHttp.response, that._selectField));
+        let search = '';
+        if (null !== searchValue) {
+            search = '?q=' + encodeURIComponent(searchValue);
+        }
+        let request = obj => {
+            return new Promise((resolve, reject) => {
+                let xhr = new XMLHttpRequest();
+                xhr.responseType = "json";
+                xhr.open(obj.method || "GET", obj.url);
+                if (obj.headers) {
+                    Object.keys(obj.headers).forEach(key => {
+                        xhr.setRequestHeader(key, obj.headers[key]);
+                    });
                 }
-            }
-            xmlHttp.open("GET", that._url, true);
-            xmlHttp.send(null);
-        });
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve(that._callback(xhr.response, that._selectField));
+                    } else {
+                        reject(xhr.statusText);
+                    }
+                };
+                xhr.onerror = () => reject(xhr.statusText);
+                xhr.send(obj.body);
+            });
+        };
+        return request({url: that._url + search})
     }
 
     /**
