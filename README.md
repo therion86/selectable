@@ -42,3 +42,7 @@ The Response fo the requested Url must a JSON-Array with objects having a "value
 ```
 <script src="selectable/js/SelectableSearch.js"></script>
 ```
+#### Combine SelectableSearch with SelectableExternalOptions (Live-Search)
+```
+ <select class="selectable external live-search" data-url="url-to-json">
+```
