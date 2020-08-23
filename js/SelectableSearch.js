@@ -70,9 +70,12 @@ class SelectableSearch {
         if (typeof SelectableExternalOptions === 'undefined') {
             return true;
         }
+        let selectField = document.querySelector('select[data-selectable-field-id="' + selectId + '"]');
+        if (! selectField.classList.contains('live-search')) {
+            return true;
+        }
         let optionsHolder = document.querySelector('.selectable-options-holder[data-id="' + selectId + '"]');
         let searchBar = optionsHolder.querySelector('.selectable-search-bar');
-        let selectField = document.querySelector('select[data-selectable-field-id="' + selectId + '"]');
         searchBar.addEventListener('keyup', function() {
             if (this.value.length < 3) {
                 return true;
