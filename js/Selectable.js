@@ -12,14 +12,16 @@ class Selectable {
         for (const selectField of selectFields) {
             // Plugin SelectableExternalOptions needed
             if (typeof SelectableExternalOptions !== "undefined") {
-                SelectableExternalOptions.loadOptions(selectField, null)
-                    .then(function () {
-                        return that.initFields(selectField);
-                    }).then(function (selectId) {
-                    SelectableSearch.liveSearch(selectId);
-                });
+				let selectId = that.initFields(selectField);
+				SelectableSearch.liveSearch(selectId);
+                SelectableExternalOptions.loadOptions(selectField, null, null, null)
             } else {
-                that.initFields(selectField);
+				if (typeof SelectableSearch !== "undefined") {
+					SelectableSearch.liveSearch(that.initFields(selectField));
+				} else {
+					that.initFields(selectField)
+				}
+            
             }
         }
     }
@@ -39,7 +41,6 @@ class Selectable {
         this._appendTitle(wrapperDiv, selectField, height);
         selectField.parentNode.insertBefore(wrapperDiv, selectField);
         this._addOptionsHolder(wrapperDiv, selectField, selectId);
-        this._addOptionsSelector(wrapperDiv);
         return selectId;
     }
 
@@ -66,13 +67,21 @@ class Selectable {
      */
     _appendChevron(wrapperDiv, selectHeight, selectId) {
         let chevron = document.createElement('span');
-        chevron.classList.add('fas', 'fa-chevron-down', 'selectable-dropdown-chevron');
+        chevron.classList.add('fas', 'fa-caret-down', 'selectable-dropdown-chevron');
         chevron.style.paddingBottom = (selectHeight / 2 - 8) + 'px';
         chevron.style.paddingTop = (selectHeight / 2 - 8) + 'px';
         chevron.setAttribute('data-id', selectId.toString());
         wrapperDiv.appendChild(chevron);
+		window.addEventListener('click', function(e) {
+			const select = document.querySelector('.selectable-options-wrapper[data-id="' + selectId + '"]');
+			if (!wrapperDiv.contains(e.target) && !select.contains(e.target)) {
+				select.classList.remove('select-options-shown');
+				select.style.display = 'none';
+			}
+		});
         wrapperDiv.addEventListener('click', function (event) {
             let targetElement = event.target;
+			targetElement.classList.add('select-options-shown');
             if (targetElement.classList.contains('.selectable-dropdown-chevron')) {
                 targetElement = this;
             } else if (targetElement.parentNode.querySelector('.selectable-dropdown-chevron')) {
@@ -91,7 +100,13 @@ class Selectable {
                 selection.style.display = 'block';
                 selection.classList.add('select-options-shown');
             }
-
+            
+            let autoloadSelect = document.querySelector('select.selectable[data-selectable-field-id="' + selectId + '"]');
+            if (autoloadSelect.classList.contains('autoload')) {
+            	const selectedOptions = autoloadSelect.querySelectorAll('option[selected]');
+            	autoloadSelect.innerHTML = '';
+                SelectableExternalOptions.loadOptions(autoloadSelect, null, null, null)
+            }
         });
     }
 
@@ -110,7 +125,7 @@ class Selectable {
         wrapperDiv.style.width = selectWidth + 'px';
         wrapperDiv.style.padding = '0';
         if (!selectField.style.border) {
-            wrapperDiv.style.border = '1px solid #ccc';
+            wrapperDiv.style.border = selectField.style.border;
         }
         wrapperDiv.setAttribute('data-select-id', selectId.toString())
         let selectClass = Array.from(selectField.classList);
@@ -132,11 +147,15 @@ class Selectable {
      */
     _addOptionsHolder(wrapperDiv, selectField, selectId) {
         let optionsHolder = document.createElement('div');
-        optionsHolder.classList.add('selectable-options-holder')
-        optionsHolder.style.width = wrapperDiv.style.width;
-        Selectable.addOptions(selectField, optionsHolder);
-        optionsHolder.style.display = 'none';
+        optionsHolder.classList.add('selectable-options-wrapper')
+        //optionsHolder.style.width = wrapperDiv.style.width;
         optionsHolder.setAttribute('data-id', selectId.toString());
+        
+        let options = document.createElement('div');
+        options.classList.add('selectable-options-holder');
+		options.setAttribute('data-id', selectId.toString());
+        Selectable.addOptions(selectField, options);
+		optionsHolder.appendChild(options);
         if (typeof SelectableSearch !== 'undefined') {
             SelectableSearch.addSearchField(wrapperDiv, optionsHolder);
         }
@@ -158,64 +177,82 @@ class Selectable {
             option.setAttribute('data-value', element.value)
             option.setAttribute('data-label', label)
             option.classList.add('selectable-option');
+            if (element.getAttribute('selected')) {
+				option.classList.add('selectable-option-selected');
+				let icon = document.createElement('i');
+				icon.classList.add('fas', 'fa-check', 'selected-check-right');
+				option.appendChild(icon);
+			}
             optionsHolder.appendChild(option);
         });
+        Selectable.addOptionsSelector(optionsHolder, document.querySelector('.selectable-wrapper[data-select-id="' + selectField.dataset.selectableFieldId + '"]'));
     }
 
     /**
      * @param {HTMLDivElement} wrapperDiv
+     * @param {HTMLDivElement} optionsHolder
      * @private
      */
-    _addOptionsSelector(wrapperDiv) {
-        let that = this;
-        document.querySelectorAll('.selectable-option').forEach(function (element) {
-            element.addEventListener('click', function () {
-                let value = this.getAttribute('data-value');
-                let label = this.getAttribute('data-label');
-                let selectId = this.parentNode.getAttribute('data-id');
-                let selectField = document.querySelector('select[data-selectable-field-id="' + selectId + '"]');
-
-                let optionWithValue = selectField.querySelector('option[value="' + value + '"]');
-                let selectedOption = selectField.querySelector('option[value="' + value + '"][selected="selected"]');
-                if (!selectField.hasAttribute('multiple')) {
-                    Array.from(selectField.options).forEach(function (option) {
-                        option.selected = false;
-                        option.removeAttribute('selected');
-                    });
-                    this.parentNode.querySelectorAll('.selectable-option').forEach(function (element) {
-                        if (element.querySelector('.fas')) {
-                            element.removeChild(element.querySelector('.fas'));
-                        }
-                        element.classList.remove('selectable-option-selected');
-                    });
-                }
-
-                if (selectedOption) {
-                    if (element.querySelector('.fas')) {
-                        this.removeChild(element.querySelector('.fas'));
-                    }
-                    selectedOption.removeAttribute('selected');
-                    this.classList.remove('selectable-option-selected');
-                    that._selectOptionCountLabel(selectField, wrapperDiv, label);
-                    return true;
-                }
-                if (!optionWithValue) {
-                    let newOption = document.createElement('option');
-                    newOption.value = value;
-                    newOption.text = label;
-                    newOption.selected = true;
-                    selectField.add(newOption);
-                } else {
-                    optionWithValue.setAttribute('selected', 'selected');
-                }
-                let icon = document.createElement('i');
-                icon.classList.add('fas', 'fa-check', 'selected-check-right');
-                this.appendChild(icon);
-
-                this.classList.add('selectable-option-selected');
-                that._selectOptionCountLabel(selectField, wrapperDiv, label);
-
-            });
+    static addOptionsSelector(optionsHolder, wrapperDiv) {
+		optionsHolder.querySelectorAll('.selectable-option').forEach(function (element) {
+			
+			elementsWithHandler.forEach(elementWithHandler => {
+				if (elementWithHandler.dataset.value === element.dataset.value) {
+					elementWithHandler.removeEventListener('click');
+				}
+			});
+        
+        	element.addEventListener('click', check);
+			elementsWithHandler.push(element)
+			
+			function check(event) {
+				let element = event.target;
+				let value = event.target.getAttribute('data-value');
+				let label = event.target.getAttribute('data-label');
+				let selectId = this.parentNode.getAttribute('data-id');
+				let selectField = document.querySelector('select[data-selectable-field-id="' + selectId + '"]');
+		
+				let optionWithValue = selectField.querySelector('option[value="' + value + '"]');
+				let selectedOption = selectField.querySelector('option[value="' + value + '"][selected="selected"]');
+				if (!selectField.hasAttribute('multiple')) {
+					Array.from(selectField.options).forEach(option => {
+						option.selected = false;
+						option.removeAttribute('selected');
+					});
+					this.parentNode.querySelectorAll('.selectable-option').forEach(function (selectableOption) {
+						if (selectableOption.querySelector('.fas')) {
+							selectableOption.removeChild(selectableOption.querySelector('.fas'));
+						}
+						selectableOption.classList.remove('selectable-option-selected');
+					});
+				}
+		
+				if (selectedOption) {
+					if (element.querySelector('.fas')) {
+						this.removeChild(element.querySelector('.fas'));
+					}
+					selectedOption.removeAttribute('selected');
+					this.classList.remove('selectable-option-selected');
+					Selectable._selectOptionCountLabel(selectField, wrapperDiv, label);
+					return true;
+				}
+				if (!optionWithValue) {
+					let newOption = document.createElement('option');
+					newOption.value = value;
+					newOption.text = label;
+					newOption.selected = true;
+					selectField.add(newOption);
+				} else {
+					optionWithValue.setAttribute('selected', 'selected');
+				}
+				let icon = document.createElement('i');
+				icon.classList.add('fas', 'fa-check', 'selected-check-right');
+				this.appendChild(icon);
+		
+				this.classList.add('selectable-option-selected');
+				Selectable._selectOptionCountLabel(selectField, wrapperDiv, label);
+		
+			}
         });
     }
 
@@ -225,7 +262,7 @@ class Selectable {
      * @param {string} label
      * @private
      */
-    _selectOptionCountLabel(selectField, wrapperDiv, label) {
+    static _selectOptionCountLabel(selectField, wrapperDiv, label) {
         let selectedOptions = selectField.querySelectorAll('option[selected="selected"]');
         let selectedOptionsLength = selectedOptions.length;
         let optionsLabel = selectedOptionsLength + ' Element(s) selected';
@@ -257,3 +294,5 @@ class Selectable {
 }
 
 new Selectable();
+
+let elementsWithHandler = [];

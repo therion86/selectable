@@ -2,6 +2,11 @@
     cursor: pointer;
     position: relative;
 }
+
+.selectable-wrapper.select-options-shown:hover {
+
+}
+
 .selectable-dropdown-chevron {
     position: absolute;
     right: 0;
@@ -20,15 +25,28 @@
     overflow: hidden;
 }
 
-.selectable-options-holder {
+.selectable-options-wrapper {
     border: 1px solid #cfcfcf;
     padding: 5px;
+    display: none;
+    z-index: 10000;
+    position: absolute;
+    background-color: #fff;
+    max-height: 250px;
+    overflow-y: scroll;
+}
+
+.selectable-options-wrapper > input {
+    margin-bottom: 2px;
+    position:sticky;
+    top: 0;
 }
 
 .selectable-option {
     width: 100%;
     text-align: left;
-    cursor: pointer
+    cursor: pointer;
+    padding: 2px;
 }
 
 .selectable-option:hover {
